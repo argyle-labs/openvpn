@@ -14,7 +14,7 @@ This repo is **self-contained** — the steps below run openvpn **by hand, witho
 
 ## Run it without orca
 
-### Docker / Podman
+### Docker Compose
 
 ```yaml
 # compose.yml
@@ -33,7 +33,22 @@ services:
 docker compose up -d
 ```
 
-Podman: the same file with `podman-compose up -d`.
+### Other runtimes
+
+**Podman** — the compose above works with `podman compose up -d`, or run it directly:
+
+```sh
+podman run -d --name openvpn --restart unless-stopped \
+    -p 1194:1194/udp \
+    -v ./openvpn-data:/etc/openvpn \
+    kylemanna/openvpn:latest
+```
+
+**LXC** — on a container-capable LXC (e.g. a Proxmox LXC with nesting enabled) run the same image via Docker/Podman as above, or install openvpn from upstream directly on the guest: <https://openvpn.net/>.
+
+**VM** — install openvpn from upstream (<https://openvpn.net/>) or run the same container image inside the VM; expose port `1194`.
+
+**Unraid** — add via *Community Applications*, or *Docker → Add Container* with image `kylemanna/openvpn:latest`, port `1194`, and the volume paths above.
 
 ### Ports & data
 
