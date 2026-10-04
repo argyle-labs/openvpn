@@ -7,12 +7,12 @@
 #![allow(clippy::disallowed_types)]
 
 use plugin_toolkit::service::{
-    BoxFuture, Endpoint, Runtime, ServiceBackend, ServiceCapability, ServiceError, ServiceStatus,
+    BoxFuture, Routes, Runtime, ServiceBackend, ServiceCapability, ServiceError, ServiceStatus,
     WorkloadSpec,
 };
 
 /// openvpn backend. Holds only the provider name; per-instance endpoint/creds
-/// come from the `Endpoint` the generic `service.*` tools hand each op.
+/// come from the instance id and `Routes` the generic `service.*` tools hand each op.
 #[derive(Debug, Clone)]
 pub struct OpenvpnBackend {
     provider: &'static str,
@@ -61,7 +61,8 @@ impl ServiceBackend for OpenvpnBackend {
     fn workload_spec<'a>(
         &'a self,
         _runtime: Runtime,
-        _ep: &'a Endpoint,
+        _instance: &'a str,
+        _routes: &'a Routes,
     ) -> BoxFuture<'a, Result<WorkloadSpec, ServiceError>> {
         // TODO: describe the openvpn workload (image/template, ports, mounts,
         // env) for the chosen runtime. The deploy target turns this into a
@@ -71,7 +72,8 @@ impl ServiceBackend for OpenvpnBackend {
 
     fn configure<'a>(
         &'a self,
-        _ep: &'a Endpoint,
+        _instance: &'a str,
+        _routes: &'a Routes,
         _config: &'a str,
     ) -> BoxFuture<'a, Result<(), ServiceError>> {
         // TODO: apply openvpn-specific config idempotently.
@@ -80,7 +82,8 @@ impl ServiceBackend for OpenvpnBackend {
 
     fn status<'a>(
         &'a self,
-        _ep: &'a Endpoint,
+        _instance: &'a str,
+        _routes: &'a Routes,
     ) -> BoxFuture<'a, Result<ServiceStatus, ServiceError>> {
         // TODO: real health/diagnostics.
         Box::pin(async move { Err(ServiceError::unimplemented("openvpn.status")) })
